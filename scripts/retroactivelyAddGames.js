@@ -1,3 +1,4 @@
+require('dotenv').config();
 const mongoose = require('mongoose');
 const Game = require('../models/game');
 const Account = require('../models/account');
@@ -6,7 +7,7 @@ let count = 0;
 const season = 10;
 
 mongoose.Promise = global.Promise;
-mongoose.connect(`mongodb://localhost:27017/secret-hitler-app`, { useNewUrlParser: true });
+mongoose.connect(`${process.env.MONGODB_URI || 'localhost:27017'}/secret-hitler-app`, { useNewUrlParser: true });
 
 Game.find({
 	// date: {
