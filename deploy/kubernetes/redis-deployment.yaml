@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    deployment.kubernetes.io/revision: "1"
+  generation: 1
+  labels:
+    app: redis
+  name: redis
+  namespace: default
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+      - image: redis
+        imagePullPolicy: Always
+        name: redis
+        ports:
+        - containerPort: 6379
+          protocol: TCP
+        resources:
+          requests:
+            memory: "256m"
+            cpu: ".2"
+          limits:
+            memory: "2G"
+            cpu: "1"
+      restartPolicy: Always

@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: mongodb
+  name: mongodb
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongodb
+  template:
+    metadata:
+      labels:
+        app: mongodb
+    spec:
+      containers:
+      - image: mongo:latest
+        name: mongodb
+        ports:
+        - containerPort: 27017
+          protocol: TCP
+        resources:
+          requests:
+            memory: "128m"
+            cpu: ".1"
+          limits:
+            memory: "2G"
+            cpu: "1"
+      restartPolicy: Always  
