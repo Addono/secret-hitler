@@ -1,0 +1,21 @@
+name: Publish
+
+on:
+  release:
+    types: [push]
+
+jobs:
+  publish-lisa-php-fpm:
+    
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@722adc6 # v2
+    
+    - name: Build and publish Docker image to Docker Hub
+      uses: elgohr/Publish-Docker-Github-Action@b2f6325 # v2.14
+      with:
+        name: addono/secret-hitler
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
