@@ -1,6 +1,8 @@
 'use strict';
 
-const http = require('http');
+var https = require('https');
+var fs = require('fs');
+
 const express = require('express');
 require('dotenv').config();
 const port = (() => {
@@ -20,8 +22,14 @@ const port = (() => {
 
 global.app = express();
 
+var options = {
+  key: fs.readFileSync('certs/privkey.pem'),
+  cert: fs.readFileSync('certs/cert.pem'),
+  ca: fs.readFileSync('certs/chain.pem')
+};
+
 const debug = require('debug')('app:server');
-const server = http.createServer(app);
+const server = https.createServer(options, app);
 
 global.io = require('socket.io')(server);
 global.notify = require('node-notifier');

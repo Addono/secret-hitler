@@ -19,6 +19,8 @@ services:
     depends_on:
       - mongodb
       - redis
+    volumes:
+      - "./certs:certs"
     environment: 
       MONGODB_URI: mongodb://mongodb:27017
       REDIS_HOST: redis

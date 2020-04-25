@@ -21,3 +21,5 @@ node_modules/
 # Ignore initial MongoDB data
 data/
 
+# Ignore certs folder (during build)
+certs
