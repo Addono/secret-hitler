@@ -345,12 +345,7 @@ module.exports = () => {
 
 			Account.findOne({ username })
 				.then(account => {
-					if (account.wins + account.losses < 50) {
-						res.json({
-							message: 'You need to have played 50 games to upload a cardback.'
-						});
-					} else if (
-						new Date(account.gameSettings.customCardbackSaveTime) &&
+					if (new Date(account.gameSettings.customCardbackSaveTime) &&
 						Date.now() - new Date(account.gameSettings.customCardbackSaveTime).getTime() < 30000
 					) {
 						res.json({

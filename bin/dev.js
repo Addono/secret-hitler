@@ -1,6 +1,5 @@
 'use strict';
 
-var https = require('https');
 var fs = require('fs');
 
 const express = require('express');
@@ -21,15 +20,23 @@ const port = (() => {
 })();
 
 global.app = express();
-
-var options = {
-  key: fs.readFileSync('certs/privkey.pem'),
-  cert: fs.readFileSync('certs/cert.pem'),
-  ca: fs.readFileSync('certs/chain.pem')
-};
-
 const debug = require('debug')('app:server');
-const server = https.createServer(options, app);
+
+var http = require('http');
+var https = require('https');
+var server;
+
+if (fs.existsSync('certs/privkey.pem')) {
+    var options = {
+      key: fs.readFileSync('certs/privkey.pem'),
+      cert: fs.readFileSync('certs/cert.pem'),
+      ca: fs.readFileSync('certs/chain.pem')
+    };
+    server = https.createServer(options, app);
+}
+else {
+    server = http.createServer(app);
+}
 
 global.io = require('socket.io')(server);
 global.notify = require('node-notifier');

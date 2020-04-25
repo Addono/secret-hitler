@@ -20,7 +20,7 @@ services:
       - mongodb
       - redis
     volumes:
-      - "./certs:certs"
+      - "./certs:/application/certs"
     environment: 
       MONGODB_URI: mongodb://mongodb:27017
       REDIS_HOST: redis
