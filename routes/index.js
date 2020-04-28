@@ -263,12 +263,9 @@ module.exports = () => {
 	});
 
 	app.get('/profile', (req, res) => {
+		const authedUser = req.session && req.session.passport && req.session.passport.user;
 		const username = req.query.username;
-		const requestingUser = req.query.requestingUser;
-		if (req && req.user && requestingUser && requestingUser !== 'undefined' && req.user.username && requestingUser !== req.user.username) {
-			res.status(401).send('You are not who you say you are. Please login again.');
-			return;
-		}
+
 		getProfile(username).then(profile => {
 			if (!profile) {
 				res.status(404).send('Profile not found');
@@ -283,16 +280,16 @@ module.exports = () => {
 						_profile.customCardback = account.gameSettings.customCardback;
 						_profile.bio = account.bio;
 
-						Account.findOne({ username: requestingUser }).then(acc => {
-							if (!acc || !acc.staffRole || acc.staffRole === 'altmod' || acc.staffRole === 'veteran') {
-								_profile.lastConnectedIP = 'no looking';
-							} else {
+						Account.findOne({ username: authedUser }).then(acc => {
+							if (acc && acc.staffRole && (acc.staffRole === 'moderator' || acc.staffRole === 'editor' || acc.staffRole === 'admin' || acc.staffRole === 'trialmod')) {
 								try {
 									_profile.lastConnectedIP = '-' + obfIP(_profile.lastConnectedIP);
 								} catch (e) {
-									_profile.lastConnectedIP = 'something went wrong';
+									_profile.lastConnectedIP = "Couldn't find IP";
 									console.log(e);
 								}
+							} else {
+								_profile.lastConnectedIP = undefined;
 							}
 
 							res.json(_profile);
@@ -345,7 +342,12 @@ module.exports = () => {
 
 			Account.findOne({ username })
 				.then(account => {
-					if (new Date(account.gameSettings.customCardbackSaveTime) &&
+					if (account.wins + account.losses < 50) {
+						res.json({
+							message: 'You need to have played 50 games to upload a cardback.'
+						});
+					} else if (
+						new Date(account.gameSettings.customCardbackSaveTime) &&
 						Date.now() - new Date(account.gameSettings.customCardbackSaveTime).getTime() < 30000
 					) {
 						res.json({

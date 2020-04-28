@@ -4,15 +4,17 @@ const Game = require('../models/game');
 const Account = require('../models/account');
 
 let count = 0;
+const season = 10;
 
 mongoose.Promise = global.Promise;
-mongoose.connect(`${process.env.MONGODB_URI || 'localhost:27017'}/secret-hitler-app`);
+mongoose.connect(`${process.env.MONGODB_URI || 'localhost:27017'}/secret-hitler-app`, { useNewUrlParser: true });
 
 Game.find({
-	date: {
-		$gte: new Date('2019-04-01 00:00:00.000'),
-		$lte: new Date('2019-04-08 00:00:00.000')
-	},
+	// date: {
+	// 	$gte: new Date('2019-04-01 00:00:00.000'),
+	// 	$lte: new Date()
+	// },
+	season: 10,
 	casualGame: false
 })
 	.cursor()
@@ -21,7 +23,8 @@ Game.find({
 			Account.findOne({ username: username.userName })
 				.cursor()
 				.eachAsync(user => {
-					user.winsSeason6 = user.winsSeason6 ? user.winsSeason6 + 1 : 1;
+					user[`winsSeason${season}`] = user[`winsSeason${season}`] ? user[`winsSeason${season}`] + 1 : 1;
+					if (game.isRainbow) user[`rainbowWinsSeason${season}`] = user[`rainbowWinsSeason${season}`] ? user[`rainbowWinsSeason${season}`] + 1 : 1;
 					user.save();
 				});
 		});
@@ -30,7 +33,8 @@ Game.find({
 			Account.findOne({ username: username.userName })
 				.cursor()
 				.eachAsync(user => {
-					user.lossesSeason6 = user.lossesSeason6 ? user.lossesSeason6 + 1 : 1;
+					user[`lossesSeason${season}`] = user[`lossesSeason${season}`] ? user[`lossesSeason${season}`] + 1 : 1;
+					if (game.isRainbow) user[`rainbowLossesSeason${season}`] = user[`rainbowLossesSeason${season}`] ? user[`rainbowLossesSeason${season}`] + 1 : 1;
 					user.save();
 				});
 		});
