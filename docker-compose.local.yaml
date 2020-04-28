@@ -14,7 +14,8 @@ services:
       - 6379:6379
 
   secret-hitler:
-    image: addono/secret-hitler:latest
+    build: .
+    restart: always
     depends_on:
       - mongodb
       - redis
