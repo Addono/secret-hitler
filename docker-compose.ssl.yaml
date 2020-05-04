@@ -1,0 +1,48 @@
+version: '3'
+
+networks: 
+  sh:
+
+services:
+  mongodb:
+    image: mongo:latest
+    volumes:
+    - ./data:/data/db
+    networks:
+      - sh
+    expose: 
+      - 27017
+
+  redis:
+    image: redis:latest
+    networks:
+      - sh
+    expose:
+      - 6379
+
+  secret-hitler:
+    image: addono/secret-hitler:latest
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - sh
+    restart: always
+    environment: 
+      MONGODB_URI: mongodb://mongodb:27017
+      REDIS_HOST: redis
+      SECRETSESSIONKEY: hunter2
+    expose:
+      - 8080
+
+  nginx: 
+    image: nginx:latest
+    restart: always
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./certs/:/etc/nginx/certs/
+    networks:
+      - sh
+    ports:
+      - 80:80
+      - 443:443
