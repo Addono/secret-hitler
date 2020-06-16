@@ -8,12 +8,13 @@ import moment from 'moment';
 export default class Generalchat extends React.Component {
 	state = {
 		lock: false,
-		discordEnabled: false,
 		stickyEnabled: true,
 		badWord: [null, null],
 		textLastChanged: 0,
 		textChangeTimer: -1,
-		chatValue: ''
+		chatValue: '',
+		emoteHelperSelectedIndex: null,
+		emoteHelperElements: ['foo', 'bar', 'baz', 'qux', 'corge']
 	};
 
 	componentDidMount() {
@@ -34,7 +35,7 @@ export default class Generalchat extends React.Component {
 	}
 
 	componentDidUpdate() {
-		if (!this.state.lock && !this.state.discordEnabled) {
+		if (!this.state.lock) {
 			this.scrollbar.scrollToBottom();
 		}
 	}
@@ -62,15 +63,22 @@ export default class Generalchat extends React.Component {
 
 	handleTyping = e => {
 		e.preventDefault();
+		const { badWord, textChangeTimer, emoteHelperSelectedIndex } = this.state;
+		const { value } = e.target;
+		const lastLetter = value[value.length - 1];
 
 		this.setState({
-			chatValue: e.target.value
+			chatValue: value,
+			emoteHelperSelectedIndex: lastLetter === ':' && !Number.isInteger(emoteHelperSelectedIndex) ? 0 : null
 		});
-		const chatValue = e.target.value;
 
-		const foundWord = getBadWord(chatValue);
-		if (this.state.badWord[0] !== foundWord[0]) {
-			if (this.state.textChangeTimer !== -1) clearTimeout(this.state.textChangeTimer);
+		const foundWord = getBadWord(value);
+
+		if (badWord[0] !== foundWord[0]) {
+			if (textChangeTimer !== -1) {
+				clearTimeout(textChangeTimer);
+			}
+
 			if (foundWord[0]) {
 				this.setState({
 					badWord: foundWord,
@@ -93,7 +101,9 @@ export default class Generalchat extends React.Component {
 	};
 
 	handleSubmit = e => {
-		if (this.chatDisabled()) return;
+		if (this.chatDisabled()) {
+			return;
+		}
 
 		const { chatValue } = this.state;
 
@@ -104,7 +114,8 @@ export default class Generalchat extends React.Component {
 
 			this.setState({
 				chatValue: '',
-				badWord: [null, null]
+				badWord: [null, null],
+				emoteHelperSelectedIndex: null
 			});
 		}
 	};
@@ -124,24 +135,52 @@ export default class Generalchat extends React.Component {
 		}
 	};
 
-	handleInsertEmote = emote => {
+	handleInsertEmote = (emote, isHelper) => {
+		const { chatValue } = this.state;
+
 		this.setState({
-			chatValue: this.state.chatValue + ' ' + emote
+			emoteHelperSelectedIndex: null,
+			chatValue: `${chatValue}${isHelper ? '' : ' '}${emote}`
 		});
 		this.chatInput.focus();
 	};
 
 	handleKeyPress = e => {
-		if (e.keyCode === 13 && e.shiftKey === false) {
+		const { emoteHelperSelectedIndex, emoteHelperElements } = this.state;
+		const emoteHelperElementCount = emoteHelperElements.length;
+		const { keyCode } = e;
+
+		if (Number.isInteger(emoteHelperSelectedIndex)) {
+			if (keyCode === 27) {
+				this.setState({
+					emoteHelperSelectedIndex: null
+				});
+			} else if (keyCode === 40) {
+				const nextIndex = emoteHelperSelectedIndex + 1;
+
+				this.setState({
+					emoteHelperSelectedIndex: nextIndex === emoteHelperElementCount ? 0 : nextIndex
+				});
+			} else if (keyCode === 38) {
+				this.setState({
+					emoteHelperSelectedIndex: emoteHelperSelectedIndex ? emoteHelperSelectedIndex - 1 : emoteHelperElementCount - 1
+				});
+			} else if (keyCode === 13 || keyCode === 9) {
+				this.handleInsertEmote(emoteHelperElements[emoteHelperSelectedIndex], true);
+				// this.setState({
+				// 	chatValue: chatValue.slice(0, chatValue.length - 1)
+				// });
+			}
+		} else if (keyCode === 13 && e.shiftKey === false) {
 			e.preventDefault();
 			this.handleSubmit();
 		}
 	};
 
 	renderInput() {
-		const { userInfo } = this.props;
+		const { userInfo, allEmotes } = this.props;
 
-		return this.state.discordEnabled ? null : (
+		return (
 			<div className={userInfo.userName ? 'ui action input' : 'ui action input disabled'}>
 				{this.state.badWord[0] && (
 					<span
@@ -184,7 +223,7 @@ export default class Generalchat extends React.Component {
 					onChange={this.handleTyping}
 					ref={c => (this.chatInput = c)}
 				/>
-				{userInfo.userName ? renderEmotesButton(this.handleInsertEmote, this.props.allEmotes) : null}
+				{userInfo.userName && Object.keys(allEmotes).length ? renderEmotesButton(this.handleInsertEmote, allEmotes) : null}
 				<div className="chat-button">
 					<button onClick={this.handleSubmit} className={`ui primary button ${this.chatDisabled() ? 'disabled' : ''}`}>
 						Chat
@@ -309,13 +348,37 @@ export default class Generalchat extends React.Component {
 		}
 	}
 
-	render() {
-		const { userInfo } = this.props;
-		const discordIconClick = () => {
+	renderEmoteHelper() {
+		const { emoteHelperSelectedIndex, emoteHelperElements } = this.state;
+		const helperHover = index => {
 			this.setState({
-				discordEnabled: this.state.discordEnabled
+				emoteHelperSelectedIndex: index
 			});
 		};
+
+		return (
+			<div className="emote-helper-container">
+				{emoteHelperElements.map((el, index) => (
+					<div
+						onMouseOver={() => {
+							helperHover(index);
+						}}
+						onClick={() => {
+							this.handleInsertEmote(el, true);
+						}}
+						key={index}
+						className={emoteHelperSelectedIndex === index ? 'selected' : ''}
+					>
+						<span>emoji ph</span>
+						{el}
+					</div>
+				))}
+			</div>
+		);
+	}
+
+	render() {
+		const { emoteHelperSelectedIndex, lock } = this.state;
 
 		return (
 			<section className="generalchat">
@@ -324,25 +387,25 @@ export default class Generalchat extends React.Component {
 						<h3 className="ui header">Chat</h3>
 						<i
 							title="Click here to lock chat and prevent from scrolling"
-							className={this.state.lock ? 'large lock icon' : 'large unlock alternate icon'}
+							className={lock ? 'large lock icon' : 'large unlock alternate icon'}
 							onClick={this.handleChatLockClick}
 						/>
-						{userInfo && userInfo.userName && <img onClick={discordIconClick} />}
 					</div>
 				</section>
 				<section className="segment chats">
-					{!this.state.discordEnabled && this.renderSticky()}
-					{this.state.discordEnabled ? (
-						<embed height="100%" width="100%" src="https://discord.gg/secrethitlerio" />
-					) : (
-						<Scrollbars
-							ref={c => (this.scrollbar = c)}
-							onScroll={this.handleChatScrolled}
-							renderThumbVertical={props => <div {...props} className="thumb-vertical" />}
-						>
-							<div className="ui list genchat-container">{this.renderChats()}</div>
-						</Scrollbars>
-					)}
+					{this.renderSticky()}
+					<Scrollbars
+						ref={c => (this.scrollbar = c)}
+						onScroll={this.handleChatScrolled}
+						renderThumbVertical={props => <div {...props} className="thumb-vertical" />}
+					>
+						<div className="ui list genchat-container">
+							<>
+								{Number.isInteger(emoteHelperSelectedIndex) && this.renderEmoteHelper()}
+								{this.renderChats()}
+							</>
+						</div>
+					</Scrollbars>
 				</section>
 				{this.renderInput()}
 			</section>
@@ -361,5 +424,5 @@ Generalchat.propTypes = {
 	socket: PropTypes.object,
 	generalChats: PropTypes.object,
 	userList: PropTypes.object,
-	allEmotes: PropTypes.array
+	allEmotes: PropTypes.object
 };
