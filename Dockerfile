@@ -4,7 +4,7 @@ WORKDIR /application
 
 COPY ./ ./
 
-RUN yarn --ignore-engines --frozen-lockfile
+RUN yarn
 RUN yarn build
 
 ENTRYPOINT node bin/dev.js
