@@ -35,15 +35,10 @@ jobs:
           echo IMAGE_ID=$IMAGE_ID
 
           # Set IMAGE_ID as an environment variable for the upcoming steps
-          echo "::set-env name=IMAGE_ID::$IMAGE_ID"
+          echo "IMAGE_ID=$IMAGE_ID" >> $GITHUB_ENV
 
       - name: Push image to main tag
         run: |
-          #IMAGE_ID=${{ github.repository }}
-          
-          # Change all uppercase to lowercase
-          #IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
-
           # Strip git ref prefix from version
           VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
 
@@ -56,11 +51,11 @@ jobs:
           echo VERSION=$VERSION
           
           # Push with the current version
-          docker tag image $IMAGE_ID:$VERSION
-          docker push $IMAGE_ID:$VERSION
+          docker tag image ${{ env.IMAGE_ID }}:$VERSION
+          docker push ${{ env.IMAGE_ID }}:$VERSION
 
       - name: Push image to Git SHA tag
         run: |
           # Push based on the last 8 Git SHA characters
-          docker tag image $IMAGE_ID:${GITHUB_SHA::8}
-          docker push $IMAGE_ID:${GITHUB_SHA::8}
+          docker tag image ${{ env.IMAGE_ID }}:${GITHUB_SHA::8}
+          docker push ${{ env.IMAGE_ID }}:${GITHUB_SHA::8}
