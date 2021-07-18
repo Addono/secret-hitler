@@ -21,14 +21,14 @@ let store;
 if (process.env.NODE_ENV !== 'production') {
 	const MongoDBStore = require('connect-mongodb-session')(session);
 	store = new MongoDBStore({
-		uri: `${process.env.MONGODB_URI || 'mongodb://localhost:27017'}/secret-hitler-app`,
+		uri: 'mongodb://localhost:27017/secret-hitler-app',
 		collection: 'sessions'
 	});
 } else {
 	const redis = require('redis').createClient();
 	const RedisStore = require('connect-redis')(session);
 	store = new RedisStore({
-		host: process.env.REDIS_HOST || '127.0.0.1',
+		host: '127.0.0.1',
 		port: 6379,
 		client: redis,
 		ttl: 2 * 604800 // 2 weeks
@@ -76,6 +76,12 @@ app.use(
 		action: 'deny'
 	})
 );
+
+// Opts out of Google's FLoC - https://plausible.io/blog/google-floc
+app.use((req, res, next) => {
+	res.set('Permissions-Policy', 'interest-cohort=()');
+	next();
+});
 
 const sessionSettings = {
 	secret: process.env.SECRETSESSIONKEY || 'hunter2',
@@ -133,7 +139,7 @@ if (process.env.DISCORDCLIENTID) {
 
 passport.serializeUser(Account.serializeUser());
 passport.deserializeUser(Account.deserializeUser());
-mongoose.connect(`${process.env.MONGODB_URI || 'localhost:27017'}/secret-hitler-app`, { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect(`mongodb://localhost:27017/secret-hitler-app`, { useNewUrlParser: true, useUnifiedTopology: true });
 mongoose.set('useCreateIndex', true);
 mongoose.set('useFindAndModify', false);
 mongoose.Promise = global.Promise;

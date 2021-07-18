@@ -1,7 +1,7 @@
 {
 	"name": "secret-hitler",
 	"description": "A web adaptation of the social deduction board game Secret Hitler.",
-	"version": "1.7.4",
+	"version": "1.8.0",
 	"license": "CC-BY-NC-SA-4.0",
 	"keywords": [
 		"boardgame",
@@ -48,7 +48,7 @@
 		"passport-local-mongoose": "^5.0.0",
 		"pngcrush": "^2.0.1",
 		"prop-types": "^15.5.10",
-		"pug": "^2.0.3",
+		"pug": "^3.0.1",
 		"rc-slider": "^8.4.0",
 		"react": "16.8.1",
 		"react-color": "^2.18.0",
@@ -135,6 +135,7 @@
 	},
 	"scripts": {
 		"prepare": "npm-run-all --parallel build-css:dark build-css:web",
+		"prettier-check": "prettier \"**/*.{js,scss,json,jsx}\" --check",
 		"format": "prettier \"**/*.{js,scss,json,jsx}\" --write",
 		"dev": "concurrently --names \"SERVER,MONGO,WEBPACK\" -c \"bgCyanBright.black,bgYellowBright.black,bgMagentaBright.whiteBright\" --handle-input \"yarn:inspect\" \"yarn:db\" \"yarn:start\"",
 		"dev-no-db": "concurrently --names \"SERVER,WEBPACK\" -c \"bgCyanBright.black,bgMagentaBright.whiteBright\" --handle-input \"yarn:inspect\" \"yarn:start\"",
