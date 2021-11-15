@@ -1,9 +1,9 @@
-FROM node:12 AS builder
+FROM node:16 AS builder
 WORKDIR /application
 COPY ./ ./
 RUN yarn && yarn build && yarn cache clean 
 
-FROM node:12-alpine
+FROM node:16-alpine
 USER node
 WORKDIR /application
 COPY --from=builder /application .
