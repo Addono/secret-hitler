@@ -557,12 +557,19 @@ class Gamechat extends React.Component {
 				};
 			}
 		} else {
+			if ((user.wins || 0) + (user.losses || 0) < 10) {
+				return {
+					isDisabled: true,
+					placeholder: 'You must finish ten games to use observer chat'
+				};
+			}
+
 			if (
 				((gameInfo.general.disableObserver && gameInfo.general.disableObserverLobby) || gameInfo.general.private) &&
 				!(isStaff || (userInfo.isTournamentMod && gameInfo.general.unlistedGame))
 			) {
 				return {
-					isDisabled: true,
+					isDisabled: false,
 					placeholder: 'Observer chat disabled'
 				};
 			}
@@ -574,17 +581,18 @@ class Gamechat extends React.Component {
 				!(isStaff || (userInfo.isTournamentMod && gameInfo.general.unlistedGame))
 			) {
 				return {
-					isDisabled: true,
+					isDisabled: false,
 					placeholder: 'Observer chat disabled during game'
 				};
 			}
+
 			if (
 				(!gameState.isStarted || gameState.isCompleted) &&
 				gameInfo.general.disableObserverLobby &&
 				!(isStaff || (userInfo.isTournamentMod && gameInfo.general.unlistedGame))
 			) {
 				return {
-					isDisabled: true,
+					isDisabled: false,
 					placeholder: 'Observer chat disabled during lobby'
 				};
 			}
@@ -596,13 +604,6 @@ class Gamechat extends React.Component {
 				return {
 					isDisabled: false,
 					placeholder: 'Send a staff message'
-				};
-			}
-
-			if ((user.wins || 0) + (user.losses || 0) < 10) {
-				return {
-					isDisabled: true,
-					placeholder: 'You must finish ten games to use observer chat'
 				};
 			}
 
@@ -659,7 +660,7 @@ class Gamechat extends React.Component {
 				case 'gold':
 					return <span title="This player was in the top tier of ranks in the previous season" className="season-award gold" />;
 				case 'gold1':
-					return <span title="This player was the top player of the previous season" className="season-award gold1" />;
+					return <span title="Wilt, wither and wane!" className="season-award gold1" />;
 				case 'gold2':
 					return <span title="This player was 2nd highest player of the previous season" className="season-award gold2" />;
 				case 'gold3':

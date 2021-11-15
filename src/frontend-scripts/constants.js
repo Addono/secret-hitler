@@ -36,7 +36,7 @@ export const TOU_CHANGES = [
 	}
 ];
 
-export const CURRENTSEASONNUMBER = 15;
+export const CURRENTSEASONNUMBER = 16;
 
 const ALPHANUMERIC = [...'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890'];
 const SYMBOLS = [...' -_=+!"£$%^&*()\\/.,<>?#~\'@;:[]{}'];
@@ -82,8 +82,8 @@ export const PLAYERCOLORS = (user, isSeasonal, defaultClass, eloDisabled) => {
 		let grade;
 		if (elo < 1500) {
 			grade = 0;
-		} else if (elo > 2000) {
-			grade = 500 / 5;
+		} else if (elo > 2100) {
+			grade = 600 / 5;
 		} else {
 			grade = (elo - 1500) / 5;
 		}
