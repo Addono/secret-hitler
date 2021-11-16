@@ -192,7 +192,7 @@ class Playerlist extends React.Component {
 			case 'gold':
 				return <span title="This player was in the top tier of ranks in the previous season" className="season-award gold" />;
 			case 'gold1':
-				return <span title="This player is too lazy to have a special text about being top of last season" className="season-award gold1" />;
+				return <span title="Wilt, wither and wane!" className="season-award gold1" />;
 			case 'gold2':
 				return <span title="This player was 2nd highest player of the previous season" className="season-award gold2" />;
 			case 'gold3':
@@ -649,7 +649,7 @@ class Playerlist extends React.Component {
 						</p>
 						<p>
 							The color of a rainbow player depends on their ELO, a type of matchmaking rating. The spectrum of colors goes from deep green as lowest ELO to
-							deep purple as highest ELO, passing through yellow and orange on its way.
+							deep indigo as highest ELO, passing through yellow, orange, red, and purple on its way.
 						</p>
 						<p>
 							Additionally, <span className="admin">Administrators</span> have a <span className="admin">red color</span> with a{' '}
